@@ -1,5 +1,6 @@
-import { FunctionComponent } from "react";
-
+"use client";
+import ButtonActionTable from "@/components/organisms/ButtonActionTable";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,9 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { JOB_LISTING_COLUMNS, JOB_LISTING_DATA } from "@/constants";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
+import { FunctionComponent } from "react";
 
 interface JobListingsPageProps {}
 
@@ -22,7 +21,6 @@ const JobListingsPage: FunctionComponent<JobListingsPageProps> = () => {
       <div className="font-semibold text-3xl">Job Listings</div>
       <div className="mt-10">
         <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
           <TableHeader>
             <TableRow>
               {JOB_LISTING_COLUMNS.map((item: string, i: number) => (
@@ -48,9 +46,7 @@ const JobListingsPage: FunctionComponent<JobListingsPageProps> = () => {
                   {item.applicants}/{item.needs}
                 </TableCell>
                 <TableCell>
-                  <Button variant={"outline"} size={"icon"}>
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <ButtonActionTable url={"/job-detail/1"} />
                 </TableCell>
               </TableRow>
             ))}
