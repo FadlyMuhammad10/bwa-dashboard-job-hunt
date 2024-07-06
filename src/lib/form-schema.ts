@@ -21,7 +21,7 @@ export const jobFormSchema = z.object({
     .string()
     .array()
     .nonempty({ message: "Required skills must be 1 selected" }),
-  JobDescription: z
+  jobDescription: z
     .string({ required_error: "Job Description is required" })
     .min(10, { message: "Job Description must be at least 10 characters" }),
   responsibility: z
