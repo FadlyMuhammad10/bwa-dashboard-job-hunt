@@ -1,4 +1,6 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { FunctionComponent } from "react";
 import {
   AiOutlineHome,
@@ -12,6 +14,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 interface SidebarProps {}
 
 const Sidebar: FunctionComponent<SidebarProps> = () => {
+  const { push } = useRouter();
   return (
     <div className="pb-12 min-h-screen">
       <div className="space-y-4 py-4">
@@ -21,6 +24,7 @@ const Sidebar: FunctionComponent<SidebarProps> = () => {
             <Button
               variant={"ghost"}
               className="w-full justify-start rounded-none hover:text-primary"
+              onClick={() => push("/")}
             >
               <AiOutlineHome className="mr-2 text-lg" />
               Home
@@ -49,6 +53,7 @@ const Sidebar: FunctionComponent<SidebarProps> = () => {
             <Button
               variant={"ghost"}
               className="w-full justify-start rounded-none hover:text-primary"
+              onClick={() => push("/job-listings")}
             >
               <IoDocumentTextOutline className="mr-2 text-lg" />
               Job Listings
