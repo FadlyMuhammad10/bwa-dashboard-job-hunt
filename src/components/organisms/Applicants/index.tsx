@@ -1,18 +1,12 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  JOB_APPLICANT_COLUMNS,
-  JOB_APPLICANT_DATA,
-  JOB_LISTING_DATA,
-} from "@/constants";
+import { JOB_APPLICANT_COLUMNS, JOB_APPLICANT_DATA } from "@/constants";
 import ButtonActionTable from "../ButtonActionTable";
 
 export default function Applicants() {
