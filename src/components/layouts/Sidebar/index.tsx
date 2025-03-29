@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FunctionComponent } from "react";
 import {
@@ -72,6 +73,7 @@ const Sidebar: FunctionComponent<SidebarProps> = () => {
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold">Settings</h2>
           <Button
+            onClick={() => push("/settings")}
             variant={"ghost"}
             className="w-full justify-start rounded-none hover:text-primary"
           >
@@ -81,6 +83,7 @@ const Sidebar: FunctionComponent<SidebarProps> = () => {
           <Button
             variant={"ghost"}
             className="w-full text-red-500 hover:bg-red-200 justify-start rounded-none hover:text-red-500"
+            onClick={() => signOut()}
           >
             <CiLogout className="mr-2 text-lg" />
             Logout

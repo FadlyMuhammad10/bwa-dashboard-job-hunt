@@ -1,4 +1,3 @@
-"use client";
 import ButtonActionTable from "@/components/organisms/ButtonActionTable";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,10 +10,28 @@ import {
 } from "@/components/ui/table";
 import { JOB_LISTING_COLUMNS, JOB_LISTING_DATA } from "@/constants";
 import { FunctionComponent } from "react";
+import prisma from "../../../../lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { dateFormat } from "@/lib/utils";
+import { Job } from "@prisma/client";
+import moment from "moment";
 
 interface JobListingsPageProps {}
 
-const JobListingsPage: FunctionComponent<JobListingsPageProps> = () => {
+async function getDataJob() {
+  const session = await getServerSession(authOptions);
+  const job = await prisma.job.findMany({
+    where: {
+      companyId: session?.user.id,
+    },
+  });
+
+  return job;
+}
+
+const JobListingsPage: FunctionComponent<JobListingsPageProps> = async ({}) => {
+  const jobs = await getDataJob();
   return (
     <div>
       <div className="font-semibold text-3xl">Job Listings</div>
@@ -29,23 +46,27 @@ const JobListingsPage: FunctionComponent<JobListingsPageProps> = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {JOB_LISTING_DATA.map((item: any, i: number) => (
-              <TableRow key={item + i}>
+            {jobs.map((item: Job, i: number) => (
+              <TableRow key={item.roles + i}>
                 <TableCell>{item.roles}</TableCell>
                 <TableCell>
-                  <Badge>{item.status}</Badge>
+                  {moment(item.datePosted).isBefore(item.dueDate) ? (
+                    <Badge>Live</Badge>
+                  ) : (
+                    <Badge variant={"destructive"}>Expired</Badge>
+                  )}
                 </TableCell>
-                <TableCell>{item.datePosted}</TableCell>
-                <TableCell>{item.dueDate}</TableCell>
+                <TableCell>{dateFormat(item.datePosted)}</TableCell>
+                <TableCell>{dateFormat(item.dueDate)}</TableCell>
                 <TableCell>
-                  <Badge variant={"outline"}>{item.status}</Badge>
+                  <Badge variant={"outline"}>{item.jobType}</Badge>
                 </TableCell>
                 <TableCell>{item.applicants}</TableCell>
                 <TableCell>
                   {item.applicants}/{item.needs}
                 </TableCell>
                 <TableCell>
-                  <ButtonActionTable url={"/job-detail/1"} />
+                  <ButtonActionTable url={`/job-detail/${item.id}`} />
                 </TableCell>
               </TableRow>
             ))}

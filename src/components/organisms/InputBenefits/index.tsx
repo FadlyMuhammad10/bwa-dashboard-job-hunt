@@ -5,22 +5,23 @@ import { PartyPopper, X } from "lucide-react";
 
 interface InputBenefitsProps {
   form: any;
+  name: string;
 }
 
-const InputBenefits: FC<InputBenefitsProps> = ({ form }) => {
+const InputBenefits: FC<InputBenefitsProps> = ({ form, name }) => {
   const [benefits, setBenefits] = useState<any[]>([]);
 
   const deleteBenefit = (item: any) => {
     const deletedBenefits = benefits.filter((benefit: any) => item !== benefit);
     setBenefits([...deletedBenefits]);
-    form.setValue("benefits", deletedBenefits);
+    form.setValue(name, deletedBenefits);
   };
 
   const updateBenefits = (item: any) => {
     const newValue: any[] = [...benefits, item];
 
     setBenefits(newValue);
-    form.setValue("benefits", newValue);
+    form.setValue(name, newValue);
   };
 
   return (
@@ -49,7 +50,7 @@ const InputBenefits: FC<InputBenefitsProps> = ({ form }) => {
 
       <FormField
         control={form.control}
-        name="benefits"
+        name={name}
         render={({ field }) => (
           <FormItem>
             <FormMessage />

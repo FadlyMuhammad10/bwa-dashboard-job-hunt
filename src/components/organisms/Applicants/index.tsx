@@ -6,10 +6,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { JOB_APPLICANT_COLUMNS, JOB_APPLICANT_DATA } from "@/constants";
+import { JOB_APPLICANT_COLUMNS } from "@/constants";
+import { FC } from "react";
 import ButtonActionTable from "../ButtonActionTable";
 
-export default function Applicants() {
+interface ApplicantsProps {
+  applicants: any;
+}
+
+const Applicants: FC<ApplicantsProps> = ({ applicants }) => {
   return (
     <Table>
       <TableHeader>
@@ -21,17 +26,22 @@ export default function Applicants() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {JOB_APPLICANT_DATA.map((item: any, i: number) => (
-          <TableRow key={item + i}>
-            <TableCell>{item.name}</TableCell>
-            <TableCell>{item.appliedDate}</TableCell>
+        {applicants && (
+          <>
+            {applicants.map((item: any, i: number) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.user.name}</TableCell>
 
-            <TableCell>
-              <ButtonActionTable url={""} />
-            </TableCell>
-          </TableRow>
-        ))}
+                <TableCell>
+                  <ButtonActionTable url={""} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </>
+        )}
       </TableBody>
     </Table>
   );
-}
+};
+
+export default Applicants;

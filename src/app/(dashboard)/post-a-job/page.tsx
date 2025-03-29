@@ -1,12 +1,11 @@
 "use client";
 
-import { jobFormSchema } from "@/lib/form-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft } from "lucide-react";
-import { FunctionComponent, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import TitleForm from "@/components/atoms/TitleForm";
+import CKEditor from "@/components/organisms/CKEditor";
+import FieldInput from "@/components/organisms/FieldInput";
+import InputBenefits from "@/components/organisms/InputBenefits";
+import InputSkills from "@/components/organisms/InputSkills";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -16,6 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -23,28 +24,78 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FieldInput from "@/components/organisms/FieldInput";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/components/ui/use-toast";
 import { JOBTYPES } from "@/constants";
-import InputSkills from "@/components/organisms/InputSkills";
-import CKEditor from "@/components/organisms/CKEditor";
-import InputBenefits from "@/components/organisms/InputBenefits";
-import { Button } from "@/components/ui/button";
+import { jobFormSchema } from "@/lib/form-schema";
+import { fetcher } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CategoryJob } from "@prisma/client";
+import { ArrowLeft } from "lucide-react";
+import moment from "moment";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { FunctionComponent, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import { z } from "zod";
 
 interface PostJobPageProps {}
 
 const PostJobPage: FunctionComponent<PostJobPageProps> = ({}) => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const { data, error, isLoading } = useSWR<CategoryJob[]>(
+    "/api/job/categories",
+    fetcher
+  );
+
   const [editorLoaded, setEditorLoaded] = useState<boolean>(false);
+
   const form = useForm<z.infer<typeof jobFormSchema>>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
       requiredSkills: [],
+      benefits: [],
     },
   });
-  function onSubmit(val: z.infer<typeof jobFormSchema>) {
-    console.log(val);
-  }
+  const onSubmit = async (val: z.infer<typeof jobFormSchema>) => {
+    try {
+      const body: any = {
+        applicants: 0,
+        categoryId: val.categoryId,
+        companyId: session?.user.id!!,
+        datePosted: moment().toDate(),
+        description: val.jobDescription,
+        dueDate: moment().add(1, "months").toDate(),
+        jobType: val.jobType,
+        needs: 20,
+        niceToHaves: val.niceToHaves,
+        roles: val.roles,
+        salaryFrom: val.salaryFrom,
+        salaryTo: val.salaryTo,
+        requiredSkills: val.requiredSkills,
+        responsibility: val.responsibility,
+        whoYouAre: val.whoYouAre,
+        benefits: val.benefits,
+      };
+      await fetch("/api/job", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      await router.push("/job-listings");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Please Try Again",
+      });
+      console.log(error);
+    }
+  };
   useEffect(() => {
     setEditorLoaded(true);
   }, []);
@@ -55,10 +106,10 @@ const PostJobPage: FunctionComponent<PostJobPageProps> = ({}) => {
         <span className="text-2xl font-semibold">Post a Job</span>
       </div>
       <div className="my-5">
-        <div className="text-lg font-semibold">Basic Information</div>
-        <div className="text-gray-400">
-          List out your top perks and benefits.
-        </div>
+        <TitleForm
+          title={"Basic Information"}
+          subtitle={"List out your top perks and benefits."}
+        />
       </div>
       <Separator />
 
@@ -183,13 +234,11 @@ const PostJobPage: FunctionComponent<PostJobPageProps> = ({}) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="m@example.com">
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value="m@google.com">m@google.com</SelectItem>
-                      <SelectItem value="m@support.com">
-                        m@support.com
-                      </SelectItem>
+                      {data?.map((item: any) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 
@@ -203,7 +252,11 @@ const PostJobPage: FunctionComponent<PostJobPageProps> = ({}) => {
             title="Required Skills"
             subtitle="Add required skills for the job"
           >
-            <InputSkills form={form} />
+            <InputSkills
+              form={form}
+              name="requiredSkills"
+              label="Required Skills"
+            />
           </FieldInput>
 
           <FieldInput
@@ -254,7 +307,7 @@ const PostJobPage: FunctionComponent<PostJobPageProps> = ({}) => {
             title="Perks and Benefits"
             subtitle="Encourage more people to apply by sharing the attractive rewards and benefits you offer your employees"
           >
-            <InputBenefits form={form} />
+            <InputBenefits form={form} name="benefits" />
           </FieldInput>
 
           <div className="flex justify-end">

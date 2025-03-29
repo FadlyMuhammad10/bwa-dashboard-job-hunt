@@ -3,82 +3,83 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { PartyPopperIcon } from "lucide-react";
+import { CategoryJob, Job } from "@prisma/client";
+import { dateFormat } from "@/lib/utils";
 
-interface JobDetailProps {}
+type jobDetailType = {
+  CategoryJob: CategoryJob | null;
+} & Job;
 
-const JobDetail: FunctionComponent<JobDetailProps> = () => {
+interface JobDetailProps {
+  detail: jobDetailType;
+}
+
+const JobDetail: FunctionComponent<JobDetailProps> = ({ detail }) => {
+  const benefits: any = detail?.benefits;
   return (
     <div>
       <div className="grid grid-cols-3 w-full gap-5">
         <div className="col-span-2 space-y-10">
           <div>
             <div className="text-3xl font-semibold">Description</div>
-            <div className="text-gray-400 mt-3">
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero,
-                possimus! Fuga incidunt commodi nam dicta dolorum aliquam iusto
-                hic ullam dolore delectus. Illo sunt minus minima amet aut
-                incidunt cumque?
-              </p>
-            </div>
+            <div
+              className="text-gray-400 mt-3"
+              dangerouslySetInnerHTML={{ __html: detail.description }}
+            ></div>
           </div>
           <div>
             <div className="text-3xl font-semibold">Responsibilities</div>
-            <div className="text-gray-400 mt-3">
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero,
-                possimus! Fuga incidunt commodi nam dicta dolorum aliquam iusto
-                hic ullam dolore delectus. Illo sunt minus minima amet aut
-                incidunt cumque?
-              </p>
-            </div>
+            <div
+              className="text-gray-400 mt-3"
+              dangerouslySetInnerHTML={{ __html: detail.responsibility }}
+            ></div>
           </div>
           <div>
             <div className="text-3xl font-semibold">Who You Are</div>
-            <div className="text-gray-400 mt-3">
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero,
-                possimus! Fuga incidunt commodi nam dicta dolorum aliquam iusto
-                hic ullam dolore delectus. Illo sunt minus minima amet aut
-                incidunt cumque?
-              </p>
-            </div>
+            <div
+              className="text-gray-400 mt-3"
+              dangerouslySetInnerHTML={{ __html: detail.whoYouAre }}
+            ></div>
           </div>
           <div>
             <div className="text-3xl font-semibold">Nice-To-Haves</div>
-            <div className="text-gray-400 mt-3">
-              <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero,
-                possimus! Fuga incidunt commodi nam dicta dolorum aliquam iusto
-                hic ullam dolore delectus. Illo sunt minus minima amet aut
-                incidunt cumque?
-              </p>
-            </div>
+            <div
+              className="text-gray-400 mt-3"
+              dangerouslySetInnerHTML={{ __html: detail.niceToHaves }}
+            ></div>
           </div>
         </div>
         <div>
           <div className="text-3xl font-semibold">About this role</div>
           <div className="shadow p-3 text-center my-6">
-            1 <span className="text-gray-500">of 10 capacity</span>
-            <Progress className="mt-3" value={15} />
+            {detail.applicants}{" "}
+            <span className="text-gray-500">of {detail.needs} capacity</span>
+            <Progress
+              className="mt-3"
+              value={detail.applicants / detail.needs / 100}
+            />
           </div>
 
           <div className="mb-10 space-y-5">
             <div className="flex justify-between">
               <div className="text-gray-500">Apply Before</div>
-              <div className="font-semibold">18 Aug 2024</div>
+              <div className="font-semibold">{dateFormat(detail.dueDate)}</div>
             </div>
             <div className="flex justify-between">
               <div className="text-gray-500">Job Posted On</div>
-              <div className="font-semibold">07 Jul 2024</div>
+              <div className="font-semibold">
+                {dateFormat(detail.datePosted)}
+              </div>
             </div>
             <div className="flex justify-between">
               <div className="text-gray-500">Job Type</div>
-              <div className="font-semibold">Full-Time</div>
+              <div className="font-semibold">{detail.jobType}</div>
             </div>
             <div className="flex justify-between">
               <div className="text-gray-500">Salary</div>
-              <div className="font-semibold">$100 - $1000 USD</div>
+              <div className="font-semibold">
+                ${detail.salaryFrom} - ${detail.salaryTo} USD
+              </div>
             </div>
           </div>
 
@@ -86,7 +87,7 @@ const JobDetail: FunctionComponent<JobDetailProps> = () => {
           <div className="my-10">
             <div className="text-3xl font-semibold mb-4">Category</div>
             <div className="space-x-5">
-              <Badge>Design</Badge>
+              <Badge>{detail.CategoryJob?.name}</Badge>
             </div>
           </div>
           <Separator />
@@ -94,7 +95,7 @@ const JobDetail: FunctionComponent<JobDetailProps> = () => {
           <div className="my-10">
             <div className="text-3xl font-semibold mb-4">Required Skills</div>
             <div className="space-x-5">
-              {["HTML", "CSS", "JavaScript"].map((item: string, i: number) => (
+              {detail.requiredSkills.map((item: string, i: number) => (
                 <Badge variant={"outline"} key={i}>
                   {item}
                 </Badge>
@@ -110,15 +111,12 @@ const JobDetail: FunctionComponent<JobDetailProps> = () => {
           This job comes with several perks and benefits
         </div>
         <div className="grid grid-cols-4 gap-5 mt-9">
-          {[1, 2, 3].map((item: any) => (
+          {benefits?.map((item: any) => (
             <div key={item}>
               <PartyPopperIcon className="w-10 h-10 text-primary mb-6" />
 
-              <div className="text-lg font-semibold mb-3">Full Healty</div>
-              <div className="text-gray-500">
-                We believe in triving communities and thats starts with your
-                team being happy and healty{" "}
-              </div>
+              <div className="text-lg font-semibold mb-3">{item.name}</div>
+              <div className="text-gray-500">{item.description}</div>
             </div>
           ))}
         </div>
